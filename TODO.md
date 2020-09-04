@@ -23,3 +23,15 @@ Set up a "pager" that just dumps what it's fed to a temporary file.
 When the pager quits, dump the last few lines; and the first few lines if
 the first few lines were emitted so fast that they were never output.
 (Although is that even possible?)
+
+## Documentation
+
+Explain the interaction with the shell, e.g. say FOO=bar nosplurge command-line
+stuff etc. 
+
+It's pointless to include output redirection (> or 2> etc.) because the entire
+point of nosplurge is to hijack STDOUT and STDERR if they're going to be
+spammy. Probably the best bet is to say alias prove="nosplurge prove" in your
+.bashrc or something.
+
+Caveat about non-Unix systems.

@@ -16,16 +16,35 @@ This is version 0.001.
 our $VERSION = '0.001';
 $VERSION = eval $VERSION;
 
+=head1 SYNOPSIS
+
+ $ nosplurge prove test-that-might-go-haywire.t
+
 =head1 DESCRIPTION
 
 We've all been there. You run something in your terminal, and suddenly your
-screen goes haywire, a metric shedload of nonsense following I<another> metric
-shedload of similar nonsense. Something, somewhere, has gone horribly wrong.
+screen goes haywire, a metric shedload of nonsense following one or more
+I<other> metric shedloads of similar nonsense.
 
-Because computers are stupid, the reason for all of this is probably to be
-found very early on in the output of the poor unsuspecting program you just
-ran. You just have to I<find> the start of the verbiage your scrollback is
-now full of.
+Three things are simultaneously, depressingly, likely:
+
+=over
+
+=item 1
+
+Something has gone horribly, horribly wrong.
+
+=item 2
+
+The clue to what went wrong is probably at the start of this slew of
+error messages and other chatter. All other errors are almost certainly
+knock-on effects and can, for now, be safely ignored.
+
+=item 3
+
+You have no where in your scrollback that start I<is> anymore.
+
+=back
 
 This is where App::Term::NoSplurge comes in. At its simplest, prefix any
 command-line invocation with C<nosplurge> and the output of the resulting
