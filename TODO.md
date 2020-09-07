@@ -16,6 +16,12 @@ to a pager instead.
 
 No idea how to test the base case.
 
+Test that input is captured and redirected: different output depending on
+input, so we know that we connected it up. After a base case, run a script that
+blocks on input, so we know that it's accepting our input; and have it e.g.
+sprew out loads of stuff in the case of one input but not the other,
+so we know we affected the result.
+
 Date mocking to test the trigger of "OK, it's pager time".
 
 Set up a "pager" that just dumps what it's fed to a temporary file.
