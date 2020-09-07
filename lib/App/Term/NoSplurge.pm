@@ -3,6 +3,10 @@ package App::Term::NoSplurge;
 use strict;
 use warnings;
 
+use IPC::Open3;
+use IO::Select;
+use Symbol;
+
 =head1 NAME
 
 App::Term::NoSplurge - be ready to summon a pager if your terminal goes haywire
@@ -54,5 +58,40 @@ but if there's ever a sudden increase in output, everything is piped to your
 configured pager instead.
 
 =cut
+
+sub run {
+    capture_command(@ARGV);
+}
+
+sub capture_command {
+    my @system_params = @_;
+
+    my $stdin; # FIXME: can we say <& somehow instead?
+    my ($stdout, $stderr) = map { Symbol::gensym() } 1..2;
+    my $pid = open3($stdin, $stdout, $stderr, join(' ', @system_params));
+    if ($pid) {
+        my $selector = IO::Select->new;
+        $selector->add($stdout, $stderr);
+        while (my @fh_ready = $selector->can_read) {
+            for my $fh (@fh_ready) {
+                my $buffer = '';
+                my $chunk_size = 256;
+                read_attempt:
+                while (1) {
+                    use Carp;
+                    my $len
+                        = sysread($fh, $buffer, $chunk_size, length($buffer));
+                    if ($len == 0) {
+                        $selector->remove($fh);
+                        last read_attempt;
+                    }
+                    last read_attempt if $len < $chunk_size;
+                }
+                print $buffer;
+            }
+        }
+    }
+    waitpid($pid, 0);
+}
 
 1;
