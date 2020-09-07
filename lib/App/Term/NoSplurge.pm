@@ -57,11 +57,26 @@ of output is limited in quantity and time, everything proceeds as normal;
 but if there's ever a sudden increase in output, everything is piped to your
 configured pager instead.
 
+=head2 Functions
+
+=head3 run
+
+Calls L<capture_command> with the contents of C<@ARGV>.
+
 =cut
 
 sub run {
     capture_command(@ARGV);
 }
+
+=head3 capture_command
+
+ In: @system_params
+
+Calls (effectively) system(@system_params), capturing STDOUT and STDERR
+and spitting the combined results out to STDOUT.
+
+=cut
 
 sub capture_command {
     my @system_params = @_;
