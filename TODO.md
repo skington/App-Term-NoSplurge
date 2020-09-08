@@ -2,9 +2,6 @@
 
 ## Basic functionality
 
-Take command-line arguments, pass them to system, pass through STDOUT
-and STDERR.
-
 If there's too much output (e.g. 25 lines in a second), take the remembered
 output and pass it to a pager, via a pipe so more things can be added in real
 time.
@@ -14,7 +11,10 @@ to a pager instead.
 
 ## Testing
 
-No idea how to test the base case.
+We output far too many lines in rapid succession, and that triggers the
+pager.
+
+A test script outputs more than 80 x 20 characters of output that doesn't include linefeeds (e.g. Monty Python-style chips, egg, spam), and that nonetheless triggers the "too many lines" mechanism.
 
 Test that input is captured and redirected: different output depending on
 input, so we know that we connected it up. After a base case, run a script that
