@@ -1,4 +1,6 @@
 #!/usr/bin/env perl
+# A simple test script that spits out a small amount of text to STDOUT.
+# It includes UTF8-encoded Unicode just to be sure.
 
 use strict;
 use warnings;
