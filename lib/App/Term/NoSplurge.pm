@@ -81,31 +81,34 @@ and spitting the combined results out to STDOUT.
 sub capture_command {
     my @system_params = @_;
 
+    # Run the specified command as a child process.
     my $stdin; # FIXME: can we say <& somehow instead?
     my ($stdout, $stderr) = map { Symbol::gensym() } 1..2;
     my $pid = open3($stdin, $stdout, $stderr, join(' ', @system_params));
-    if ($pid) {
-        my $selector = IO::Select->new;
-        $selector->add($stdout, $stderr);
-        while (my @fh_ready = $selector->can_read) {
-            for my $fh (@fh_ready) {
-                my $buffer = '';
-                my $chunk_size = 256;
-                read_attempt:
-                while (1) {
-                    use Carp;
-                    my $len
-                        = sysread($fh, $buffer, $chunk_size, length($buffer));
-                    if ($len == 0) {
-                        $selector->remove($fh);
-                        last read_attempt;
-                    }
-                    last read_attempt if $len < $chunk_size;
+
+    # Poll STDOUT and STDERR until they're both closed.
+    my $selector = IO::Select->new;
+    $selector->add($stdout, $stderr);
+    while (my @fh_ready = $selector->can_read) {
+        for my $fh (@fh_ready) {
+            my $buffer     = '';
+            my $chunk_size = 256;
+            read_attempt:
+            while (1) {
+                use Carp;
+                my $len = sysread($fh, $buffer, $chunk_size, length($buffer));
+                if ($len == 0) {
+                    $selector->remove($fh);
+                    last read_attempt;
                 }
                 print $buffer;
+                $buffer = '';
+                last read_attempt if $len < $chunk_size;
             }
         }
     }
+
+    # Make sure to reap the child process.
     waitpid($pid, 0);
 }
 
