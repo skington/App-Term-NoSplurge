@@ -9,7 +9,7 @@ use Symbol;
 
 =head1 NAME
 
-App::Term::NoSplurge - be ready to summon a pager if your terminal goes haywire
+App::Term::NoSplurge - summons a pager if your terminal goes haywire
 
 =head1 VERSION
 
@@ -46,7 +46,7 @@ knock-on effects and can, for now, be safely ignored.
 
 =item 3
 
-You have no where in your scrollback that start I<is> anymore.
+You have no idea where in your scrollback that start I<is> anymore.
 
 =back
 
@@ -111,5 +111,37 @@ sub capture_command {
     # Make sure to reap the child process.
     waitpid($pid, 0);
 }
+
+=head1 LIMITATIONS
+
+No attempt is made to deal with STDIN. The use case for this utility is where
+you've run something that proceeds without user intervention, but now use
+intervention is I<sadly needed>.
+
+Whether the command invoked spams to STDOUT and/or STDERR is gleefully ignored.
+All captured output is spat out to STDOUT, and if it ever needed to be captured
+to a file, STDOUT and STDERR are commingled. This mimics the behaviour of
+running a script from the shell, where it I<doesn't matter>; by default you'll
+see both streams anyway.
+
+=head1 AUTHOR
+
+Sam Kington <skington@cpan.org>
+
+The source code for this module is hosted on GitHub
+L<https://github.com/skington/App-Term-Nosplurge> - this is probably the
+best place to look for suggestions and feedback.
+
+=head1 COPYRIGHT
+
+Copyright (c) 2020 Sam Kington.
+
+=head1 LICENSE
+
+This library is free software and may be distributed under the same terms as
+perl itself.
+
+
+=cut
 
 1;
