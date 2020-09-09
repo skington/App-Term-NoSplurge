@@ -20,6 +20,7 @@ my @nosplurge_incantation = (
 subtest('We can handle a script that just outputs to STDOUT', \&test_stdout);
 subtest('We can handle output to both STDOUT and STDERR', \&test_commingled);
 subtest('We can handle splurging with linefeeds', \&test_splurge_linefeeds);
+subtest('We can handle splurging with long lines', \&test_splurge_long_lines);
 done_testing();
 
 # A simple script that outputs a small amount of data to STDOUT is
@@ -96,13 +97,7 @@ sub test_commingled {
 sub test_splurge_linefeeds {
     # It normally outputs consecutive lines of revolutions.
     local $ENV{PAGER} = '/bin/true';
-    if (!-e $ENV{PAGER}) {
-        fail("Can't find $ENV{PAGER}, can't test this");
-        return;
-    } elsif (!-x _) {
-        fail("Can't *run* $ENV{PAGER}, can't test this");
-        return;
-    }
+    _test_pager() or return;
     my %capture = _capture('splurge-linefeeds.pl');
     like(
         $capture{base_stdout},
@@ -151,6 +146,63 @@ sub test_splurge_linefeeds {
     is($capture{nosplurge_exit}, 0, 'No weird exit codes from nosplurge');
 }
 
+sub test_splurge_long_lines {
+    local $ENV{PAGER} = '/bin/true';
+    _test_pager() or return;
+
+    my %capture = _capture('splurge-few-linefeeds.pl');
+    like(
+        $capture{base_stdout},
+        qr{
+            \QVikings with horned helmets\E
+            .+
+            Lobster \s Thermidor
+            .+
+            crescendo
+            .+
+            # These are the bits that should be omitted
+            \Qwithout the spam\E
+            .+
+            Bloody \s Vikings
+            .+
+            shrieks [^\n]+ \QI don't like spam\E
+            .+
+            # The last 10 lines start here
+            \Qcause a fuss\E
+            .+
+            singing \s elaborately
+        }xsm,
+        'The base output contains the entirety of the Monty Python spam sketch'
+    );
+    is($capture{base_stderr}, '', 'No errors from base script');
+    is($capture{base_exit},   0,  'No weird exit codes from base script');
+
+    like(
+        $capture{nosplurge_stdout},
+        qr{
+            \QVikings with horned helmets\E
+            .+
+            Lobster \s Thermidor
+            .+
+            crescendo
+            .+
+            [^\n]+ Splurge \s detected .+ /bin/true [^\n]* \n            
+            .+
+            \Qcause a fuss\E
+            .+
+            singing \s elaborately
+        }xsm,
+        'The nosplurge output still contains identifying information'
+    );
+    unlike(
+        $capture{nosplurge_stdout},
+        qr/Bloody Vikings/,
+        'Some stuff in the middle is omitted'
+    );
+    is($capture{nosplurge_stderr}, '', 'No errors from nosplurge');
+    is($capture{nosplurge_exit},   0,  'No weird exit code from nosplurge');
+}
+
 # Supplied with a script name, returns a hash of data containing the output
 # to STDOUT, STDERR and the exit code, for both the base script and for the
 # script run through nosplurge.
@@ -168,3 +220,16 @@ sub _capture {
         };
     return %capture;
 }
+
+# Checks that we can run the PAGER program, or returns false.
+sub _test_pager {
+    if (!-e $ENV{PAGER}) {
+        fail("Can't find $ENV{PAGER}, can't test this");
+        return;
+    } elsif (!-x _) {
+        fail("Can't *run* $ENV{PAGER}, can't test this");
+        return;
+    }
+    return 1;
+}
+
