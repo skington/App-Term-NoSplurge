@@ -9,8 +9,6 @@ Detect ANSI escape codes used to delete previous lines.
 
 ## Testing
 
-A test script outputs more than 80 x 20 characters of output that doesn't include linefeeds (e.g. Monty Python-style chips, egg, spam), and that nonetheless triggers the "too many lines" mechanism.
-
 Test that input is captured and redirected: different output depending on
 input, so we know that we connected it up. After a base case, run a script that
 blocks on input, so we know that it's accepting our input; and have it e.g.
