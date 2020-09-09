@@ -19,6 +19,7 @@ my @nosplurge_incantation = (
 
 subtest('We can handle a script that just outputs to STDOUT', \&test_stdout);
 subtest('We can handle output to both STDOUT and STDERR', \&test_commingled);
+subtest('We can handle splurging with linefeeds', \&test_splurge_linefeeds);
 done_testing();
 
 # A simple script that outputs a small amount of data to STDOUT is
@@ -87,6 +88,67 @@ sub test_commingled {
     );
     is($capture{nosplurge_stderr}, '', 'So nothing left in STDERR');
     is($capture{nosplurge_exit}, 0, 'And everything is still fine');
+}
+
+# A script that outputs a large amount of data, to STDOUT, separated by
+# linefeeds, is summarised.
+
+sub test_splurge_linefeeds {
+    # It normally outputs consecutive lines of revolutions.
+    local $ENV{PAGER} = '/bin/true';
+    if (!-e $ENV{PAGER}) {
+        fail("Can't find $ENV{PAGER}, can't test this");
+        return;
+    } elsif (!-x _) {
+        fail("Can't *run* $ENV{PAGER}, can't test this");
+        return;
+    }
+    my %capture = _capture('splurge-linefeeds.pl');
+    like(
+        $capture{base_stdout},
+        qr/
+            ^
+            Revolution \s \#1 \n
+            Revolution \s \#2 \n
+            .+
+            Revolution \s \#25 \n
+            Revolution \s \#26 \n
+            .+
+            Revolution \s \#80 \n
+            Revolution \s \#81 \n
+            .+
+            Revolution \s \#89 \n
+            Revolution \s \#90 \n
+            $
+        /xsm,
+        'Looks like we got all 90 lines of revolution'
+    );
+    is($capture{base_stderr}, '', 'No errors');
+    is($capture{base_exit},   0,  'No weird exit codes');
+
+    # When nosplurge comes to the rescue, the middle stuff is ignored (because
+    # we told to pipe stuff to /bin/true which jettisons all input).
+    like(
+        $capture{nosplurge_stdout},
+        qr{
+            ^
+            Revolution \s \#1 \n
+            Revolution \s \#2 \n
+            .+
+            Revolution \s \#24 \n
+            Revolution \s \#25 \n
+            [^\n]+ Splurge \s detected .+ /bin/true [^\n]* \n
+            Revolution \s \#81 \n
+            Revolution \s \#82 \n
+            .+
+            Revolution \s \#89 \n
+            Revolution \s \#90 \n
+            $
+        }xsm,
+        'Nosplurge passes the middle stuff to a pager, which here ignores it'
+    );
+    is($capture{nosplurge_stderr}, '', 'No errors from nosplurge');
+    is($capture{nosplurge_exit}, 0, 'No weird exit codes from nosplurge');
 }
 
 # Supplied with a script name, returns a hash of data containing the output

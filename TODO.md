@@ -2,17 +2,12 @@
 
 ## Basic functionality
 
-If there's too much output (e.g. 25 lines in a second), take the remembered
-output and pass it to a pager, via a pipe so more things can be added in real
-time.
+Reset our understanding of how much of a splurge there's been if enough time
+has passed.
 
-Output "Nosplurge to the rescue!" or something when we decide to send output
-to a pager instead.
+Detect ANSI escape codes used to delete previous lines.
 
 ## Testing
-
-We output far too many lines in rapid succession, and that triggers the
-pager.
 
 A test script outputs more than 80 x 20 characters of output that doesn't include linefeeds (e.g. Monty Python-style chips, egg, spam), and that nonetheless triggers the "too many lines" mechanism.
 
