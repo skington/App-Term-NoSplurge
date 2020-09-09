@@ -15,8 +15,11 @@ my $test_bin_dir = lib::abs::path('./bin');
 my @nosplurge_incantation = (
     $EXECUTABLE_NAME, '-I',
     lib::abs::path('../lib'),
-    lib::abs::path('../bin/nosplurge')
 );
+if (!!(eval 'Devel::Cover::get_coverage()')) {
+    push @nosplurge_incantation, '-MDevel::Cover=-silent,1';
+}
+push @nosplurge_incantation, lib::abs::path('../bin/nosplurge');
 
 subtest('We can handle a script that just outputs to STDOUT', \&test_stdout);
 subtest('We can handle output to both STDOUT and STDERR', \&test_commingled);
