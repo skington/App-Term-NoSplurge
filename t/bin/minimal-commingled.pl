@@ -21,7 +21,7 @@ DUET_LYRICS
 
 while (my ($stdout_line, $stderr_line) = splice(@lines, 0, 2)) {
     print STDOUT $stdout_line, "\n";
-    Time::HiRes::sleep(0.08);
+    Time::HiRes::sleep(0.02);
     print STDERR $stderr_line, "\n";
-    Time::HiRes::sleep(0.1);
+    Time::HiRes::sleep(0.03);
 }
