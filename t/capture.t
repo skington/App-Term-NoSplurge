@@ -5,6 +5,7 @@ use warnings;
 
 use lib::abs;
 use Capture::Tiny;
+use Encode;
 use English qw(-no_match_vars);
 use Test::More;
 
