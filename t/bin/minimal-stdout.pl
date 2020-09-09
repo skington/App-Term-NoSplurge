@@ -11,7 +11,7 @@ print Encode::encode('UTF8', <<JABBERWOCKY_INTRO);
 ’Twas brillig, and the slithy toves
 Did gyre and gimble in the wabe.
 All mimsy were the borogoves,
-And the mome raths outgrade.
+And the mome raths outgrabe.
 
 I can’t remember the next bit, so
 This will have to do.
