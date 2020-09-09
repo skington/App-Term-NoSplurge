@@ -228,7 +228,7 @@ sub capture_command {
 =head1 LIMITATIONS
 
 No attempt is made to deal with STDIN. The use case for this utility is where
-you've run something that proceeds without user intervention, but now use
+you've run something that proceeds without user intervention, but now user
 intervention is I<sadly needed>.
 
 Whether the command invoked spams to STDOUT and/or STDERR is gleefully ignored.
